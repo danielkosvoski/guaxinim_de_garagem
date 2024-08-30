@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Profissional;
+use App\Models\Especialidade;
 use Illuminate\Http\Request;
 
 class ProfissionalController extends Controller
@@ -12,7 +13,11 @@ class ProfissionalController extends Controller
      */
     public function index()
     {
-        //
+        $dados = Profissional::all();
+
+        // dd($dados);
+
+        return view("profissional.list", ["dados" => $dados]);
     }
 
     /**
@@ -20,7 +25,9 @@ class ProfissionalController extends Controller
      */
     public function create()
     {
-        //
+        $especialidade = Especialidade::all();
+
+        return view("profissional.form",['especialidade'=>$especialidade]);
     }
 
     /**
@@ -28,7 +35,18 @@ class ProfissionalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Profissional::create(
+            [
+                'nome' => $request->nome,
+                'especialidade_id' => $request->especialidade_id,
+                'contato' => $request->contato,
+                'descricao' => $request->descricao,
+
+
+
+            ]
+        );
+        return redirect('profissional');
     }
 
     /**
@@ -44,22 +62,62 @@ class ProfissionalController extends Controller
      */
     public function edit(Profissional $profissional)
     {
-        //
+        $dado = Profissional::findOrFail($id);
+
+        $especialidade = Especialidade::all();
+
+
+        return view("profissional.form", [
+            'dado' => $dado,
+            'profissional'=> $profissional
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Profissional $profissional)
+    public function update(Request $request, profissional $profissional)
     {
-        //
+        Profissional::updateOrCreate(
+            ['id' => $request->id],
+            [
+                'nome' => $request->nome,
+                'especialidade_id' => $request->especialidade_id,
+                'contato' => $request->contato,
+                'descricao' => $request->descricao,
+            ]
+        );
+        return redirect('profissional');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Profissional $profissional)
+    public function destroy($id)
     {
-        //
+        $dado = Profissional::findOrFail($id);
+        // dd($dado);
+        $dado->delete();
+
+        return redirect('profissional');
     }
+
+    public function search(Request $request)
+    {
+
+
+        if (!empty($request->nome)) {
+            $dados = Profissional::where(
+                "nome",
+                "like",
+                "%" . $request->nome . "%"
+            )->get();
+        } else {
+            $dados = Profissional::all();
+        }
+        // dd($dados);
+
+        return view("profissional.list", ["dados" => $dados]);
+    }
+
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tatuagem;
+use App\Models\Profissional;
 use Illuminate\Http\Request;
 
 class TatuagemController extends Controller
@@ -12,7 +13,11 @@ class TatuagemController extends Controller
      */
     public function index()
     {
-        //
+        $dados = Tatuagem::all();
+
+        // dd($dados);
+
+        return view("tatuagem.list", ["dados" => $dados]);
     }
 
     /**
@@ -20,7 +25,9 @@ class TatuagemController extends Controller
      */
     public function create()
     {
-        //
+        $profissional = Profissional::all();
+
+        return view("tatuagem.form",['profissional'=>$profissional]);
     }
 
     /**
@@ -28,7 +35,19 @@ class TatuagemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Tatuagem::create(
+            [
+                'profissional_id' => $request->profissional_id,
+                'descricao' => $request->descricao,
+                'local' => $request->local,
+                'tamanho' => $request->tamanho,
+                'estilo' => $request->estilo,
+                'data' => $request->data,
+
+
+            ]
+        );
+        return redirect('tatuagem');
     }
 
     /**
@@ -44,7 +63,15 @@ class TatuagemController extends Controller
      */
     public function edit(Tatuagem $tatuagem)
     {
-        //
+        $dado = Tatuagem::findOrFail($id);
+
+        $profisional = Profissional::all();
+
+
+        return view("tatuagem.form", [
+            'dado' => $dado,
+            'profissional'=> $profissional
+        ]);
     }
 
     /**
@@ -52,14 +79,48 @@ class TatuagemController extends Controller
      */
     public function update(Request $request, Tatuagem $tatuagem)
     {
-        //
+        Tatuagem::updateOrCreate(
+            ['id' => $request->id],
+            [
+                'profissional_id' => $request->profissional_id,
+                'descricao' => $request->descricao,
+                'local' => $request->local,
+                'tamanho' => $request->tamanho,
+                'estilo' => $request->estilo,
+                'data' => $request->data,
+            ]
+        );
+        return redirect('tatuagem');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tatuagem $tatuagem)
+    public function destroy($id)
     {
-        //
+        $dado = Tatuagem::findOrFail($id);
+        // dd($dado);
+        $dado->delete();
+
+        return redirect('tatuagem');
     }
+
+    public function search(Request $request)
+    {
+
+
+        if (!empty($request->nome)) {
+            $dados = Tatuagem::where(
+                "nome",
+                "like",
+                "%" . $request->nome . "%"
+            )->get();
+        } else {
+            $dados = Tatuagem::all();
+        }
+        // dd($dados);
+
+        return view("tatuagem.list", ["dados" => $dados]);
+    }
+
 }

@@ -13,7 +13,6 @@ class Especialidade extends Model
     //app/Models/
     protected $fillable = [
         "nome",
-        "profissional_id",
     ];
 
     public function profissionais()
